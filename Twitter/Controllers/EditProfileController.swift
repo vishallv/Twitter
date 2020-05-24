@@ -11,6 +11,7 @@ import UIKit
 private let reuseIdentifier = "EditProfileControllerCell"
 protocol EditProfileControllerDelegate : class{
     func controller(_ controller : EditProfileController,updateUser user : User)
+    func logOutTheUser()
 }
 
 class EditProfileController : UITableViewController{
@@ -19,6 +20,7 @@ class EditProfileController : UITableViewController{
     private var user : User
     private lazy var headerView = EditProfileHeader(user: user)
     private let imagePicker = UIImagePickerController()
+    private let footerView = EditProfileFooter()
     private var userInfoChanged = false
     private var imageChanged :Bool{
         return selectedImage != nil
@@ -115,8 +117,10 @@ class EditProfileController : UITableViewController{
         
         tableView.tableHeaderView = headerView
         tableView.register(EditProfileCell.self, forCellReuseIdentifier: reuseIdentifier)
+        footerView.delegate = self
+        footerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 50)
         headerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 180)
-        tableView.tableFooterView = UIView()
+        tableView.tableFooterView = footerView
         headerView.delegate = self
         
         imagePicker.delegate = self
@@ -157,6 +161,8 @@ extension EditProfileController {
         
         return 48
     }
+    
+   
 }
 
 extension EditProfileController : UINavigationControllerDelegate , UIImagePickerControllerDelegate{
@@ -189,6 +195,24 @@ extension EditProfileController : EditProfileCellDelegate{
             
         }
         
+    }
+    
+    
+}
+
+extension EditProfileController : EditProfileFooterDelegate{
+    func handleLogOut() {
+        let alert = UIAlertController(title: nil, message: "Are you sure you want to log out?", preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Log Out", style: .destructive, handler: { (_) in
+            self.dismiss(animated: true) {
+                self.delegate?.logOutTheUser()
+            }
+        }))
+        
+        alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
+        
+        present(alert, animated: true, completion: nil)
     }
     
     

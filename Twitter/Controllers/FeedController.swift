@@ -92,6 +92,12 @@ class FeedController : UICollectionViewController{
         fetchTweets()
     }
     
+    @objc func handleLeftProfileTapped(){
+        guard let user = self.user else {return}
+        let controller = ProfileController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     //MARK: Helper Functions
     
     func configureUI(){
@@ -126,7 +132,12 @@ class FeedController : UICollectionViewController{
         
         //        profileImageView.setImageUsingSDWebImage(view: profileImageView, urlString: urlString)
         
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleLeftProfileTapped))
+        profileImageView.isUserInteractionEnabled = true
+        profileImageView.addGestureRecognizer(tap)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: profileImageView)
+        
         
         
     }

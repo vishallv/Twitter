@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class ProfileController : UICollectionViewController{
     
@@ -14,12 +15,12 @@ class ProfileController : UICollectionViewController{
     //MARK: Properties
     var user : User
     private var tweets = [Tweet]()
-//    {
-//
-//        didSet{
-//            DispatchQueue.main.async {
-//                self.collectionView.reloadData()
-//            }}}
+    //    {
+    //
+    //        didSet{
+    //            DispatchQueue.main.async {
+    //                self.collectionView.reloadData()
+    //            }}}
     
     private var selectedFilter : ProfileFilterOptions = .tweets{
         didSet{
@@ -41,7 +42,7 @@ class ProfileController : UICollectionViewController{
             return likesTweets
         }
     }
-        
+    
     
     
     
@@ -83,8 +84,8 @@ class ProfileController : UICollectionViewController{
             
             guard var resTweets = tweets else {return}
             //OWN Sorting implementation
-//            resTweets.sort {$0.timestamp > $1.timestamp}
-//            self?.tweets = resTweets
+            //            resTweets.sort {$0.timestamp > $1.timestamp}
+            //            self?.tweets = resTweets
             self?.tweets = resTweets
             self?.collectionView.reloadData()
         }
@@ -92,7 +93,7 @@ class ProfileController : UICollectionViewController{
     }
     
     func fetchReplies(){
-
+        
         TweetService.shared.fetchReplies(forUser: user) { [weak self](tweets) in
             self?.repliesTweet = tweets
             self?.collectionView.reloadData()
@@ -155,14 +156,14 @@ class ProfileController : UICollectionViewController{
 extension ProfileController{
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        return tweets.count
+        //        return tweets.count
         return currentDataSource.count
         
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TweetCell.resuseIdentifier, for: indexPath) as! TweetCell
         
-//        cell.tweet = tweets[indexPath.row]
+        //        cell.tweet = tweets[indexPath.row]
         cell.tweet = currentDataSource[indexPath.row]
         return cell
     }
@@ -200,7 +201,7 @@ extension ProfileController : UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-//        let tweet = tweets[indexPath.row]
+        //        let tweet = tweets[indexPath.row]
         let tweet = currentDataSource[indexPath.row]
         guard let user = tweet.user else {return CGSize(width: 0, height: 0) }
         let viewModel = TweetViewModel(tweet: tweet, user: user)
@@ -269,6 +270,29 @@ extension ProfileController : ProfileHeaderDelegate{
 }
 
 extension ProfileController : EditProfileControllerDelegate{
+    func logOutTheUser() {
+        do {
+            
+            try Auth.auth().signOut()
+            DispatchQueue.main.async {
+                let controller = UINavigationController(rootViewController: LoginController())
+                
+                if #available(iOS 13, *){
+                    controller.isModalInPresentation = true
+                    
+                }
+                
+                controller.modalPresentationStyle = .fullScreen
+                self.present(controller, animated: true, completion: nil)
+            }
+        }
+        catch let error{
+            
+            print(error)
+            
+        }
+    }
+    
     func controller(_ controller: EditProfileController, updateUser user: User) {
         controller.dismiss(animated: true, completion: nil)
         self.user = user
